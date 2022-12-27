@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import mime from 'mime';
 import archiver from 'archiver';
 import { uploadFileToDrive, uploadFolderToDrive, createNewFolderAtDrive } from '../utils/google-drive';
 
@@ -13,7 +12,6 @@ export default class TasksServices {
 
   public async UploadFile(providedFilePath: string): Promise<void> {
     let fileName = providedFilePath.split('\\').at(-1)!;
-
     await uploadFileToDrive({ folderPath: providedFilePath.split('\\').slice(0, -1).join('\\'), fileName });
   }
 
@@ -28,7 +26,6 @@ export default class TasksServices {
       if (this.blacklist.indexOf(fileOrDirName) > -1) continue;
 
       let stats = fs.statSync(path.resolve(dirPath, fileOrDirName));
-
       //= File
       if (stats.isFile()) {
         await uploadFileToDrive({ folderPath: dirPath, fileName: fileOrDirName, folderAtDrive: mainDir })
@@ -103,6 +100,7 @@ export default class TasksServices {
               fs.mkdirSync(tempDir);
             }
           }
+
           const outputPath = parentFolder
             ?
             path.resolve(this.webWorksFolderPath, `./Archive/${parentFolder}/${fileOrDirName}.zip`)
@@ -163,7 +161,6 @@ export default class TasksServices {
 
     for (let fileOrDirName of files) {
       let stats = fs.statSync(path.resolve(archivePath, fileOrDirName));
-
       //= File
       if (stats.isFile()) {
         let folderPath = archivePath.split('\\').slice(0, -1).join('\\')
