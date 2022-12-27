@@ -17,9 +17,16 @@ export const drive = google.drive({ version: "v3", auth });
 export const GoogleDrive = new TsGoogleDrive({ credentials: credentials });
 
 
-interface DirUploadParams { file: Readable, filemeta: { name: string, mimeType: string }, folder?: { parent?: string, name: string }, currentFolder?: { id: string } }
+interface DirUploadParams { folderPath: string, fileName: string, folderAtDrive?: { id: string } }
 
-export async function uploadFileToDrive({ file, filemeta, folder, currentFolder }: DirUploadParams) {
+export async function uploadFileToDrive({ folderPath, fileName, folderAtDrive }: DirUploadParams) {
+  let filemeta = {
+    name: fileName,
+    mimeType: mime.getType(fileName)!
+  };
+
+  let file = fs.createReadStream(path.resolve(folderPath, fileName));
+
   const media = {
     mimeType: filemeta.mimeType,
     body: file,
@@ -30,13 +37,8 @@ export async function uploadFileToDrive({ file, filemeta, folder, currentFolder 
     parents: ['1SJ76XrP802PKYKIfH2omk8r1q1RV0_oU']
   };
 
-  if (folder) {
-    let createdFolder = await createNewFolderAtDrive(folder)
-    fileMetadata.parents = [createdFolder.id]
-  };
-
-  if (currentFolder) {
-    fileMetadata.parents = [currentFolder.id]
+  if (folderAtDrive) {
+    fileMetadata.parents = [folderAtDrive.id]
   }
 
   return await drive.files.create({
@@ -57,18 +59,11 @@ export async function uploadFolderToDrive({ name, parent = "1SJ76XrP802PKYKIfH2o
   let MainStats = fs.statSync(folderPath);
 
   if (MainStats.isFile()) {
-    let filemeta = {
-      name: name,
-      mimeType: mime.getType(name)!
-    };
-
-    let file = fs.createReadStream(path.resolve(folderPath));
-
-    await uploadFileToDrive({ file, filemeta, currentFolder: { id: parent } })
+    await uploadFileToDrive({ folderPath, fileName: name, folderAtDrive: { id: parent } })
   } else {
     let folder = await GoogleDrive.createFolder({ name, parent });
 
-    var files = fs.readdirSync(folderPath);
+    let files = fs.readdirSync(folderPath);
 
     for (let fileOrDirName of files) {
       if (blacklist.indexOf(fileOrDirName) > -1) continue;
@@ -77,14 +72,7 @@ export async function uploadFolderToDrive({ name, parent = "1SJ76XrP802PKYKIfH2o
 
       //= File
       if (stats.isFile()) {
-        let filemeta = {
-          name: fileOrDirName,
-          mimeType: mime.getType(fileOrDirName)!
-        };
-
-        let file = fs.createReadStream(path.resolve(folderPath, fileOrDirName));
-
-        await uploadFileToDrive({ file, filemeta, currentFolder: folder })
+        await uploadFileToDrive({ folderPath, fileName: fileOrDirName, folderAtDrive: folder })
       } else {
         await uploadFolderToDrive({ name: fileOrDirName, parent: folder.id, folderPath: path.resolve(folderPath, fileOrDirName) })
       }

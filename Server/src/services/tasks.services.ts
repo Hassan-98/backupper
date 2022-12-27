@@ -6,27 +6,20 @@ import { uploadFileToDrive, uploadFolderToDrive, createNewFolderAtDrive } from '
 
 export default class TasksServices {
   public blacklist: string[] = ['dist', 'build', 'node_modules', '.git', '.next', '.nuxt', '.swc', 'out', '.cache'];
-  public blacklistedFolders: string[] = ['Archive', 'Libs', 'Not Important', 'Old-Archive', 'ROPT v3.5.4', 'DELETED'];
+  public blacklistedFolders: string[] = ['Archive', 'Libs', 'Not Important', 'Old-Archive', 'DELETED'];
+  public webWorksFolderPath: string = "E:\\Web Works";
+  public webWorksArchivePath: string = "E:\\Web Works\\Archive"
 
 
   public async UploadFile(providedFilePath: string): Promise<void> {
-    let filePath = path.resolve(providedFilePath);
     let fileName = providedFilePath.split('\\').at(-1)!;
 
-    let filemeta = {
-      name: fileName,
-      mimeType: mime.getType(fileName)!
-    };
-
-    let file = fs.createReadStream(filePath);
-
-    await uploadFileToDrive({ file, filemeta });
+    await uploadFileToDrive({ folderPath: providedFilePath.split('\\').slice(0, -1).join('\\'), fileName });
   }
 
   public async UploadDirectory(dirPath: string): Promise<string[]> {
     let files = fs.readdirSync(dirPath);
 
-    let currentDir: string = dirPath;
     let mainFolder: string = dirPath.split('\\').at(-1)!;
 
     let mainDir = await createNewFolderAtDrive({ name: mainFolder });
@@ -34,20 +27,13 @@ export default class TasksServices {
     for (let fileOrDirName of files) {
       if (this.blacklist.indexOf(fileOrDirName) > -1) continue;
 
-      let stats = fs.statSync(path.resolve(currentDir, fileOrDirName));
+      let stats = fs.statSync(path.resolve(dirPath, fileOrDirName));
 
       //= File
       if (stats.isFile()) {
-        let filemeta = {
-          name: fileOrDirName,
-          mimeType: mime.getType(fileOrDirName)!
-        };
-
-        let file = fs.createReadStream(path.resolve(currentDir, fileOrDirName));
-
-        await uploadFileToDrive({ file, filemeta, currentFolder: mainDir })
+        await uploadFileToDrive({ folderPath: dirPath, fileName: fileOrDirName, folderAtDrive: mainDir })
       } else {
-        await uploadFolderToDrive({ name: fileOrDirName, parent: mainDir.id, folderPath: path.resolve(currentDir, fileOrDirName) })
+        await uploadFolderToDrive({ name: fileOrDirName, parent: mainDir.id, folderPath: path.resolve(dirPath, fileOrDirName) })
       }
     }
 
@@ -112,16 +98,16 @@ export default class TasksServices {
             *| a Check for creating a sub-folder in archive directory for the current folder
           */
           if (parentFolder) {
-            let tempDir = path.resolve("E:\\Web Works", `./Archive/${parentFolder}`);
+            let tempDir = path.resolve(this.webWorksFolderPath, `./Archive/${parentFolder}`);
             if (!fs.existsSync(tempDir)) {
               fs.mkdirSync(tempDir);
             }
           }
           const outputPath = parentFolder
             ?
-            path.resolve("E:\\Web Works", `./Archive/${parentFolder}/${fileOrDirName}.zip`)
+            path.resolve(this.webWorksFolderPath, `./Archive/${parentFolder}/${fileOrDirName}.zip`)
             :
-            path.resolve("E:\\Web Works", `./Archive/${fileOrDirName}.zip`);
+            path.resolve(this.webWorksFolderPath, `./Archive/${fileOrDirName}.zip`);
           const output = fs.createWriteStream(outputPath);
 
           output.on('close', function () {
@@ -172,7 +158,7 @@ export default class TasksServices {
   }
 
   public uploadArchivedWorksTask = async () => {
-    const archivePath = path.resolve("E:\\Web Works\\Archive");
+    const archivePath = path.resolve(this.webWorksArchivePath);
     let files = fs.readdirSync(archivePath);
 
     for (let fileOrDirName of files) {
@@ -180,14 +166,8 @@ export default class TasksServices {
 
       //= File
       if (stats.isFile()) {
-        let filemeta = {
-          name: fileOrDirName,
-          mimeType: mime.getType(fileOrDirName)!
-        };
-
-        let file = fs.createReadStream(path.resolve(archivePath, fileOrDirName));
-
-        await uploadFileToDrive({ file, filemeta })
+        let folderPath = archivePath.split('\\').slice(0, -1).join('\\')
+        await uploadFileToDrive({ folderPath, fileName: fileOrDirName })
       } else {
         await uploadFolderToDrive({ name: fileOrDirName, folderPath: path.resolve(archivePath, fileOrDirName) })
       }
