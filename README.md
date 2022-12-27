@@ -7,11 +7,11 @@ backupper is tiny tool to make archives of my web projects from my pc and upload
 
 ## Getting Started
 To run the project locally on your device You need to
-#### Prerequisites
+### Prerequisites
 - Nodejs & npm installed
 - typescript installed `npm i typescript -g`
 
-#### Installation
+### Installation
 Let's install the project locally and run it
 - clone the repo `git clone https://github.com/Hassan-98/backupper.git`
 - install server dependencies `cd Server && yarn install`
