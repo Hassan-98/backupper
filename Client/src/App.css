@@ -1,0 +1,28 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.card {
+  padding: 5em;
+  background-color: #1a1a1a;
+  color: #fff;
+  border-color: #646cff;
+}
+
+button {
+  border-color: #646cff !important;
+}
+
+input {
+  padding: 12px !important;
+  background-color: #202020 !important;
+  border-color: #646cff !important;
+  color: #fff !important;
+}
+
+.read-the-docs {
+  color: #888;
+}
