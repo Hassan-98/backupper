@@ -2,8 +2,8 @@
 backupper is tiny tool to make archives of my web projects from my pc and upload them to google drive as a backup
 
 ### Built With
-Client Side: Reactjs - TypeScript
-Server Side: Node.js - Express - TypeScript
+* Client Side: Reactjs - TypeScript
+* Server Side: Node.js - Express - TypeScript
 
 ## Getting Started
 To run the project locally on your device You need to
