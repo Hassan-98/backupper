@@ -12,7 +12,7 @@ class TasksController {
   public archiveDirectory = asyncHandler(async (req: Request, res: Response) => {
     if (!req.body.path) throw new HttpException(400, 'Upload failed, folder path is not valid');
 
-    const files = this.Services.ScanAndArchiveTask(req.body.path, req.body.path.split('\\').at(-1));
+    const files = await this.Services.ScanAndArchiveTask(req.body.path, req.body.path.split('\\').at(-1));
 
     res.status(200).json({ success: true, data: files })
   })
