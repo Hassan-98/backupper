@@ -1,6 +1,7 @@
 import { useState } from 'react';
 //= Packages
 import axios from 'axios';
+import mime from 'mime';
 //= Styles
 import './App.css';
 
@@ -16,9 +17,26 @@ function App() {
   async function handleUploadFile(event: React.MouseEvent) {
     let button = event.currentTarget;
 
+    if (!mime.getType(path)) return alert("The selected path is not a file");
+
     button.setAttribute('disabled', 'disabled');
     try {
       const response = await axios.post('/tasks/upload-file', { path });
+      console.log(response.data.data);
+      alert('file uploaded successfully');
+    } catch (error: any) {
+      alert(error.message);
+    }
+
+    button.removeAttribute('disabled');
+  }
+
+  async function handleUploadFolder(event: React.MouseEvent) {
+    let button = event.currentTarget;
+
+    button.setAttribute('disabled', 'disabled');
+    try {
+      const response = await axios.post('/tasks/upload-dir', { path });
       console.log(response.data.data);
       alert('file uploaded successfully');
     } catch (error: any) {
@@ -80,8 +98,9 @@ function App() {
         <p>archive and backup my web works to my google drive</p>
         <input type="text" placeholder="Type File/Folder Path" className="form-control mt-5 mb-3" onChange={handlePathChange} />
         <div>
-          <button onClick={handleArchiveFile}>Archive File At Path</button>
-          <button onClick={handleUploadFile} className="ms-3">Upload File At Path</button>
+          <button onClick={handleArchiveFile}>Archive File\Folder</button>
+          <button onClick={handleUploadFile} className="ms-3">Upload File</button>
+          <button onClick={handleUploadFolder} className="ms-3">Upload Folder</button>
         </div>
         <hr className="my-5" />
         <div>

@@ -9,43 +9,6 @@ export default class TasksServices {
   public blacklistedFolders: string[] = ['Archive', 'Libs', 'Not Important', 'Old-Archive', 'ROPT v3.5.4', 'DELETED'];
 
 
-  public ArchiveDirectory(requiredPath: string): string[] {
-    let files = fs.readdirSync(requiredPath);
-
-    let directory = requiredPath;
-    let folderName = requiredPath.split('\\').at(-1);
-
-    const archive = archiver('zip', {
-      zlib: { level: 9 }
-    });
-    const outputPath = path.resolve(directory, '../Archive', `./${folderName}.zip`);
-    const output = fs.createWriteStream(outputPath);
-
-    output.on('close', function () {
-      console.log(`File: ${folderName} | Outputed at: ${outputPath} | Size: (${(archive.pointer() / (1024 * 1024)).toFixed(3)} MB)`);
-    });
-
-    archive.on('error', function (err) {
-      console.log(err);
-    });
-
-    archive.pipe(output);
-
-
-    for (let fileOrDirName of files) {
-      if (this.blacklist.indexOf(fileOrDirName) > -1) continue;
-
-      let stats = fs.statSync(path.resolve(directory, fileOrDirName));
-
-      if (stats.isFile()) archive.append(fs.createReadStream(path.resolve(directory, fileOrDirName)), { name: fileOrDirName });
-      else archive.directory(path.resolve(directory, fileOrDirName), fileOrDirName);
-    }
-
-    archive.finalize();
-
-    return files;
-  }
-
   public async UploadFile(providedFilePath: string): Promise<void> {
     let filePath = path.resolve(providedFilePath);
     let fileName = providedFilePath.split('\\').at(-1)!;
