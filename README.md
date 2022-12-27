@@ -4,13 +4,13 @@ backupper is tiny tool to make archives of my web projects from my pc and upload
 ### Built With
 * Client Side: Reactjs - TypeScript
 * Server Side: Node.js - Express - TypeScript
-
+---
 ## Getting Started
 To run the project locally on your device You need to
 ### Prerequisites
 - Nodejs & npm installed
 - typescript installed `npm i typescript -g`
-
+---
 ### Installation
 Let's install the project locally and run it
 - clone the repo `git clone https://github.com/Hassan-98/backupper.git`
@@ -18,7 +18,7 @@ Let's install the project locally and run it
 - install client dependencies `cd Client && yarn install`
 - start server `cd Server && yarn dev`
 - start client `cd Client && yarn dev`
-
+---
 ### Contributing
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
 
@@ -31,6 +31,6 @@ If you have a suggestion that would make this better, please fork the repo and c
 - Push to the Branch
     git push origin feature/AmazingFeature
 - Open a Pull Request
-
+---
 ### Contact
 Hassan Ali https://github.com/Hassan-98
